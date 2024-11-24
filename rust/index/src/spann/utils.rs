@@ -304,15 +304,16 @@ impl<'referred_data> KMeansAlgorithm<'referred_data> {
         let mut max_cluster_idx: i32 = -1;
         #[allow(clippy::needless_range_loop)]
         for cluster_idx in 0..self.input.k {
-            let start = kmeansassign_output.cluster_farthest_point_idx[cluster_idx] as usize
-                * self.input.embedding_dimension;
-            let end = (kmeansassign_output.cluster_farthest_point_idx[cluster_idx] + 1) as usize
-                * self.input.embedding_dimension;
             if kmeansassign_output.cluster_counts[cluster_idx] > 0
                 && kmeansassign_output.cluster_counts[cluster_idx] > max_count
                 && self.input.distance_function.distance(
                     &previous_centers[cluster_idx],
-                    &self.input.embeddings[start..end],
+                    &self.input.embeddings[kmeansassign_output.cluster_farthest_point_idx
+                        [cluster_idx] as usize
+                        * self.input.embedding_dimension
+                        ..(kmeansassign_output.cluster_farthest_point_idx[cluster_idx] + 1)
+                            as usize
+                            * self.input.embedding_dimension],
                 ) > 1e-6
             {
                 max_count = kmeansassign_output.cluster_counts[cluster_idx];
