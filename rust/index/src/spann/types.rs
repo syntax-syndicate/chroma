@@ -900,6 +900,22 @@ impl SpannIndexWriter {
         self.add_postings_list(id, version, embedding).await
     }
 
+    pub async fn update(
+        &self,
+        id: u32,
+        embedding: &[f32],
+    ) -> Result<(), SpannIndexWriterConstructionError> {
+        // Delete and then add.
+        self.delete(id).await?;
+        self.add(id, embedding).await
+    }
+
+    pub async fn delete(&self, id: u32) -> Result<(), SpannIndexWriterConstructionError> {
+        let mut version_map_guard = self.versions_map.write();
+        version_map_guard.versions_map.insert(id, 0);
+        Ok(())
+    }
+
     // TODO(Sanket): Change the error types.
     pub async fn commit(self) -> Result<SpannIndexFlusher, SpannIndexWriterConstructionError> {
         // Pl list.
