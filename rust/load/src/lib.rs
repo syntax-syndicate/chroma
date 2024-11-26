@@ -209,6 +209,11 @@ impl Workload {
                 return Err(Error::InvalidRequest(format!("workload not found: {name}")));
             }
         }
+        if let Workload::Hybrid(hybrid) = self {
+            for (_, workload) in hybrid {
+                workload.resolve_by_name(workloads)?;
+            }
+        }
         Ok(())
     }
 
